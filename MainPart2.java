@@ -2,7 +2,7 @@ import java.io.*;
 import java.util.*;
 
 public class MainPart2 {
-    
+
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
 
@@ -10,14 +10,14 @@ public class MainPart2 {
         String fileName = sc.nextLine();
 
         try {
-            // 1. Open the file
+
             File file = new File(fileName);
             Scanner fileScanner = new Scanner(file);
 
-            // 2. First line = knapsack capacity
+            // The first line is the knapsack capacity
             int capacity = Integer.parseInt(fileScanner.nextLine().trim());
 
-            // 3. Store item data
+            // Create lists to hold our item data
             List<String> ids = new ArrayList<>();
             List<Integer> weights = new ArrayList<>();
             List<Integer> prices = new ArrayList<>();
@@ -28,21 +28,21 @@ public class MainPart2 {
 
                 // Split by spaces or tabs
                 String[] parts = line.split("\\s+");
-                ids.add(parts[0]);                         // Item ID
-                weights.add(Integer.parseInt(parts[1]));   // Item Weight
-                prices.add(Integer.parseInt(parts[2]));    // Item Price
+                ids.add(parts[0]);                          // Item ID
+                weights.add(Integer.parseInt(parts[1]));    // Item Weight
+                prices.add(Integer.parseInt(parts[2]));     // Item Price
             }
             fileScanner.close();
 
             int n = ids.size();
 
-            // 4. Create DP Table
-            // Rows: 0..n (items), Columns: 0..capacity
+            // 3. Create the DP Table
+            // Rows: 0 to n (items), Columns: 0 to capacity.
             int[][] dp = new int[n + 1][capacity + 1];
 
-            // 5. Fill the table (UNBOUNDED / GENERAL knapsack)
-            // Key difference from Part I:
-            // If we take an item, we stay in the SAME row (dp[i][...]) so we can take it again.
+            // 4. Fill the table (General / Unbounded Knapsack)
+            // Difference from Part I: when we take an item, we can still take it again,
+            // so we stay on the same row (dp[i][...]).
             for (int i = 1; i <= n; i++) {
                 int currentWeight = weights.get(i - 1);
                 int currentPrice = prices.get(i - 1);
@@ -50,11 +50,8 @@ public class MainPart2 {
                 for (int w = 1; w <= capacity; w++) {
                     if (currentWeight <= w) {
                         // Can we fit it?
-                        // MAX of: (Not taking it) vs (Taking it + best value at remaining capacity in SAME row)
-                        dp[i][w] = Math.max(
-                                dp[i - 1][w],
-                                currentPrice + dp[i][w - currentWeight]
-                        );
+                        // MAX of: (Not taking it) vs (Taking it + best value with remaining capacity on SAME row)
+                        dp[i][w] = Math.max(dp[i - 1][w], currentPrice + dp[i][w - currentWeight]);
                     } else {
                         // Too heavy? Just take the value from the row above
                         dp[i][w] = dp[i - 1][w];
@@ -62,27 +59,25 @@ public class MainPart2 {
                 }
             }
 
-            // 6. Backtrack to find which items were picked (UNBOUNDED)
-            // If dp[i][w] == dp[i-1][w], we did NOT pick item i.
-            // Otherwise, we DID pick it, and we stay at i (because we might pick it again).
+            // 5. Backtrack to find which items were picked
+            // If the current cell is the same as the one above, we didn't pick this item.
+            // If different, we picked it. For Part II, we stay on the same item (can pick again).
             List<String> pickedIds = new ArrayList<>();
             int tempW = capacity;
             int i = n;
 
             while (i > 0 && tempW > 0) {
                 if (dp[i][tempW] == dp[i - 1][tempW]) {
-                    // Didn't use this item, move up
-                    i--;
+                    i--; // didn't pick this item
                 } else {
-                    // Used this item (and we can use it again)
                     pickedIds.add(ids.get(i - 1));
-                    tempW -= weights.get(i - 1);
+                    tempW -= weights.get(i - 1); // reduce capacity, but keep i the same
                 }
             }
 
-            Collections.reverse(pickedIds); 
+            Collections.reverse(pickedIds); // Order them by appearance (same as Part I)
 
-            // 7. Output the dynamic table to "dynamic_table.txt"
+            // 6. Output the dynamic table to "dynamic_table.txt"
             PrintWriter writer = new PrintWriter(new FileWriter("dynamic_table.txt"));
             for (int[] row : dp) {
                 StringBuilder rowStr = new StringBuilder();
@@ -94,7 +89,7 @@ public class MainPart2 {
             }
             writer.close();
 
-            // 8. Print results to console 
+            // 7. Print results to console
             System.out.println("Processing...");
             System.out.println("Done!");
             System.out.println("\nResult:");
