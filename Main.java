@@ -1,3 +1,10 @@
+/*
+* CPSC 371 - Artificial Intelligence
+* Assignment - 1 
+* Part - 1
+* The Unsupervised Guys
+*/
+
 import java.io.*;
 import java.util.*;
 
