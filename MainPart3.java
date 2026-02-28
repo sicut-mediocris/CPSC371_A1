@@ -176,7 +176,7 @@ public class MainPart3 {
             }
 
             // Write dynamic table (only constrained results)
-            PrintWriter writer = new PrintWriter(new FileWriter("dynamic_table.txt"));
+            PrintWriter writer = new PrintWriter(new FileWriter("dynamic_table_part3.txt"));
 
             for (int i = 0; i <= n; i++) {
                 StringBuilder row = new StringBuilder();
@@ -207,7 +207,7 @@ public class MainPart3 {
             }
 
             System.out.println("=====");
-            System.out.println("Outputting dynamic_table.txt...");
+            System.out.println("Outputting dynamic_table_part3.txt...");
             System.out.println("Done!");
             System.out.println("End of Processing.");
 
