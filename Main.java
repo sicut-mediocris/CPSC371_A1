@@ -3,6 +3,25 @@ import java.util.*;
 
 public class Main {
 
+
+    /*Team name : Unsupervised Guys
+    Sukirat Singh Dhillon
+    Akshay Arulkrishnan
+    Amaan Hingora
+    Karsten Ngai-Natsuhara*/
+
+    static class Item {
+        final String id;
+        final int weight;
+        final int price;
+
+        Item(String id, int weight, int price) {
+            this.id = id;
+            this.weight = weight;
+            this.price = price;
+        }
+    }
+
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
 
@@ -19,9 +38,7 @@ public class Main {
             int capacity = Integer.parseInt(fileScanner.nextLine().trim());
 
             // Create lists to hold our item data 
-            List<String> ids = new ArrayList<>();
-            List<Integer> weights = new ArrayList<>();
-            List<Integer> prices = new ArrayList<>();
+           List<Item> itemList = new ArrayList<>();
 
             while (fileScanner.hasNextLine()) {
                 String line = fileScanner.nextLine().trim();
@@ -29,50 +46,53 @@ public class Main {
 
                 // Split by spaces or tabs 
                 String[] parts = line.split("\\s+");
-                ids.add(parts[0]);         // Item ID 
-                weights.add(Integer.parseInt(parts[1])); // Item Weight 
-                prices.add(Integer.parseInt(parts[2]));  // Item Price
+                String id = parts[0];
+                int w = Integer.parseInt(parts[1]);
+                int p = Integer.parseInt(parts[2]);
+                itemList.add(new Item(id, w, p));
             }
             fileScanner.close();
 
-            int n = ids.size();
+            int n = itemList.size();
 
-            // 3. Create the DP Table
+            //  Create the DP Table
             // Rows: 0 to n (items), Columns: 0 to capacity.
-            int[][] dp = new int[n + 1][capacity + 1];
+            int[][] table = new int[n + 1][capacity + 1];
 
-            // 4. Fill the table 
+            //  Fill the table 
             for (int i = 1; i <= n; i++) {
-                int currentWeight = weights.get(i - 1);
-                int currentPrice = prices.get(i - 1);
+                Item current = itemList.get(i - 1); // Get the item for this row
 
                 for (int w = 1; w <= capacity; w++) {
-                    if (currentWeight <= w) {
-                        // Can we fit it? 
-                        // Take the MAX of: (Not taking it) vs (Taking it + remaining capacity profit)
-                        dp[i][w] = Math.max(dp[i - 1][w], currentPrice + dp[i - 1][w - currentWeight]);
+                    if (current.weight <= w) {
+                       // If it fits, we check: is it better to take it or skip it?
+                        int takeIt = current.price + table[i - 1][w - current.weight];
+                        int skipIt = table[i - 1][w];
+                        table[i][w] = Math.max(takeIt, skipIt);
                     } else {
-                        // Too heavy? Just take the value from the row above
-                        dp[i][w] = dp[i - 1][w];
+                        // If it's too  heavy? Just take the value from the row above
+                        table[i][w] = table[i - 1][w];
                     }
                 }
             }
 
-            // 5. Backtrack to find which items were picked
+            //  Backtrack to find which items were picked
             // We compare current cell to the one above it. If different, we picked it!
             List<String> pickedIds = new ArrayList<>();
-            int tempW = capacity;
+            int weightLeft = capacity;
             for (int i = n; i > 0; i--) {
-                if (dp[i][tempW] != dp[i - 1][tempW]) {
-                    pickedIds.add(ids.get(i - 1));
-                    tempW -= weights.get(i - 1);
+                // If the value is different from the row above, we haev definitely used this item
+                if (table[i][weightLeft] != table[i - 1][weightLeft]) {
+                    Item picked = itemList.get(i - 1);
+                    pickedIds.add(picked.id);
+                    weightLeft -= picked.weight;
                 }
             }
-            Collections.reverse(pickedIds); // Order them by appearance
+            Collections.reverse(pickedIds); // Flip it so it's in order of ID
 
-            // 6. Output the dynamic table to "dynamic_table.txt" 
+            //  Output the  table to "dynamic_table.txt" 
             PrintWriter writer = new PrintWriter(new FileWriter("dynamic_table.txt"));
-            for (int[] row : dp) {
+            for (int[] row : table) {
                 StringBuilder rowStr = new StringBuilder();
                 for (int j = 0; j < row.length; j++) {
                     rowStr.append("\"").append(row[j]).append("\"");
@@ -82,11 +102,11 @@ public class Main {
             }
             writer.close();
 
-            // 7. Print results to console
+           
             System.out.println("Processing...");
             System.out.println("Done!");
             System.out.println("\nResult:");
-            System.out.println("Total Value: " + dp[n][capacity]); 
+            System.out.println("Total Value: " + table[n][capacity]); 
             System.out.print("Item ID List: ");
             System.out.println(String.join(", ", pickedIds));
             System.out.println("====="); 
