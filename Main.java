@@ -1,6 +1,13 @@
 import java.io.*;
 import java.util.*;
 
+/*
+ * Part I: 0-1 Knapsack Problem
+ *
+ * Objective:
+ * - Maximize total value within given capacity.
+ */
+
 public class Main {
 
     public static void main(String[] args) {
@@ -99,3 +106,24 @@ public class Main {
         }
     }
 }
+
+
+//Output
+/*
+PS F:\My files\Personal documents\Studies\Winter Semester 2026\CPSC 371\Assignments\Assignment 1\CPSC371_Winter2026_A1_The_Unsupervised_Guys\CPSC371_A1> java Main
+Please enter the data file name: sample_knapsack_data.txt
+Processing...
+Done!
+
+Result:
+Total Value: 7
+Item ID List: 1, 2
+
+Result:
+Total Value: 6
+Item ID List: 4
+=====
+Outputting dynamic_table.txt...
+Done!
+End of Processing.
+*/
